@@ -1,0 +1,7 @@
+{
+  "name": "Serrano Rivers - Functional Art",
+  "description": "A high-end e-commerce landing page for Serrano Rivers, a premium brand curation 1-of-1 epoxy resin and wood furniture.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
