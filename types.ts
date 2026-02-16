@@ -11,6 +11,7 @@ export interface TeamMember {
   name: string;
   role: string;
   image: string;
+  description?: string;
 }
 
 export interface QuizState {

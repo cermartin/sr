@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
+import logoImg from '../images/logo.png';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,21 +16,24 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header 
+    <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <a href="#" className="font-serif text-2xl tracking-widest font-semibold text-stone-900">
-          SERRANO RIVERS
+        <a href="#" className="flex items-center gap-3">
+          <img src={logoImg} alt="SR" className="h-10 w-10 rounded-full" />
+          <span className="font-serif text-2xl tracking-widest font-semibold text-stone-900">
+            SERRANO RIVERS
+          </span>
         </a>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-8">
           {NAV_LINKS.map((link) => (
-            <a 
+            <a
               key={link.label}
               href={link.href}
               className="text-sm font-medium text-stone-600 hover:text-stone-900 tracking-wide transition-colors"
@@ -43,7 +47,7 @@ const Header: React.FC = () => {
         </nav>
 
         {/* Mobile Menu Toggle */}
-        <button 
+        <button
           className="md:hidden text-stone-800"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
@@ -55,7 +59,7 @@ const Header: React.FC = () => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-stone-50 border-t border-stone-200 shadow-lg py-6 px-6 flex flex-col space-y-4">
           {NAV_LINKS.map((link) => (
-            <a 
+            <a
               key={link.label}
               href={link.href}
               className="text-lg font-serif text-stone-800"
