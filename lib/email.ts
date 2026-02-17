@@ -53,6 +53,9 @@ export async function sendOrderEmails(data: OrderEmailData): Promise<void> {
     emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE_ID, {
       ...commonParams,
       to_email: data.customerEmail,
+      email_to: data.customerEmail,
+      email: data.customerEmail,
+      reply_to: data.customerEmail,
     }, PUBLIC_KEY),
     emailjs.send(SERVICE_ID, OWNER_TEMPLATE_ID, {
       ...commonParams,
