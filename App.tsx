@@ -10,7 +10,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import ProductDetail from './components/ProductDetail';
 import Checkout from './components/Checkout';
-import VisitCounter from './components/VisitCounter';
+import BuildBadge from './components/BuildBadge';
 import { PRODUCTS } from './constants';
 
 type Page = { type: 'home' } | { type: 'product'; id: string } | { type: 'checkout' };
@@ -41,7 +41,7 @@ function App() {
     <CartProvider>
       <main className="w-full min-h-screen">
         <Header onLogoClick={goHome} />
-        <VisitCounter />
+        <BuildBadge />
         {page.type === 'checkout' ? (
           <Checkout onBack={goHome} />
         ) : selectedProduct ? (
