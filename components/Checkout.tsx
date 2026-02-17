@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Lock, Truck, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Truck, ShieldCheck, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { supabase } from '../lib/supabase';
 
 interface CheckoutProps {
   onBack: () => void;
@@ -13,6 +14,8 @@ function parsePrice(price: string): number {
 const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
   const { items, totalPrice, cartKey, clearCart } = useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const shipping = totalPrice >= 100 ? 0 : 5;
   const total = totalPrice + shipping;
@@ -38,11 +41,50 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
   const inputCls = 'w-full px-4 py-3 border border-stone-300 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors';
   const labelCls = 'block text-xs uppercase tracking-widest text-stone-500 mb-1.5';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOrderPlaced(true);
-    clearCart();
-    window.scrollTo({ top: 0 });
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const orderItems = items.map(item => {
+        const variant = item.product.variants?.find(v => v.id === item.variantId);
+        return {
+          product_id: item.product.id,
+          product_name: item.product.name,
+          variant_name: variant?.name || null,
+          quantity: item.quantity,
+          unit_price: parsePrice(item.product.price),
+        };
+      });
+
+      const { error: dbError } = await supabase.from('orders').insert({
+        email: form.email,
+        phone: form.phone || null,
+        first_name: form.firstName,
+        last_name: form.lastName,
+        address: form.address,
+        city: form.city,
+        postcode: form.postcode,
+        country: form.country,
+        card_last_four: form.cardNumber.slice(-4),
+        subtotal: totalPrice,
+        shipping,
+        total,
+        items: orderItems,
+      });
+
+      if (dbError) throw dbError;
+
+      setOrderPlaced(true);
+      clearCart();
+      window.scrollTo({ top: 0 });
+    } catch (err: any) {
+      console.error('Order save failed:', err);
+      setError('Something went wrong placing your order. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (orderPlaced) {
@@ -183,13 +225,18 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-600 text-sm bg-red-50 border border-red-200 p-3">{error}</p>
+            )}
+
             {/* Submit — mobile */}
             <button
               type="submit"
-              className="lg:hidden w-full py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors flex items-center justify-center gap-2"
+              disabled={submitting}
+              className="lg:hidden w-full py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Lock size={14} />
-              Pay £{total.toLocaleString()}
+              {submitting ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+              {submitting ? 'Processing...' : `Pay £${total.toLocaleString()}`}
             </button>
           </div>
 
@@ -247,10 +294,11 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
               {/* Submit — desktop */}
               <button
                 type="submit"
-                className="hidden lg:flex w-full mt-6 py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors items-center justify-center gap-2"
+                disabled={submitting}
+                className="hidden lg:flex w-full mt-6 py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Lock size={14} />
-                Pay £{total.toLocaleString()}
+                {submitting ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+                {submitting ? 'Processing...' : `Pay £${total.toLocaleString()}`}
               </button>
             </div>
           </div>

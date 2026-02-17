@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Check, RotateCcw, Droplets, Sun, ShieldCheck } from 'lucide-react';
 import { QuizState } from '../types';
+import { supabase } from '../lib/supabase';
 
 const INITIAL_STATE: QuizState = {
   step: 0,
@@ -23,9 +24,21 @@ const Quiz: React.FC = () => {
     setState(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setState(prev => ({ ...prev, step: prev.step + 1 }));
+
+    try {
+      await supabase.from('quiz_submissions').insert({
+        name: state.userName,
+        email: state.userEmail,
+        location: state.location,
+        usage: state.usage,
+        cleaning: state.cleaning,
+      });
+    } catch (err) {
+      console.error('Quiz save failed:', err);
+    }
   };
 
   const resetQuiz = () => {
