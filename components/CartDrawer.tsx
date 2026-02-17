@@ -2,7 +2,11 @@ import React from 'react';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-const CartDrawer: React.FC = () => {
+interface CartDrawerProps {
+  onCheckout: () => void;
+}
+
+const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
   const { isOpen, closeCart, items, totalItems, totalPrice, updateQuantity, removeItem, cartKey } = useCart();
 
   return (
@@ -91,7 +95,10 @@ const CartDrawer: React.FC = () => {
                 £{totalPrice.toLocaleString()}
               </span>
             </div>
-            <button className="w-full py-3 bg-stone-900 text-stone-50 uppercase tracking-widest text-sm hover:bg-stone-700 transition-colors">
+            <button
+              onClick={() => { closeCart(); onCheckout(); }}
+              className="w-full py-3 bg-stone-900 text-stone-50 uppercase tracking-widest text-sm hover:bg-stone-700 transition-colors"
+            >
               Checkout
             </button>
           </div>

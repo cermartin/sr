@@ -9,37 +9,52 @@ import Quiz from './components/Quiz';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import ProductDetail from './components/ProductDetail';
+import Checkout from './components/Checkout';
 import { PRODUCTS } from './constants';
 
+type Page = { type: 'home' } | { type: 'product'; id: string } | { type: 'checkout' };
+
 function App() {
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [page, setPage] = useState<Page>({ type: 'home' });
 
-  const selectedProduct = selectedProductId
-    ? PRODUCTS.find(p => p.id === selectedProductId) || null
-    : null;
-
-  const handleBack = () => {
-    setSelectedProductId(null);
+  const goHome = () => {
+    setPage({ type: 'home' });
     window.scrollTo({ top: 0 });
   };
+
+  const goProduct = (id: string) => {
+    setPage({ type: 'product', id });
+    window.scrollTo({ top: 0 });
+  };
+
+  const goCheckout = () => {
+    setPage({ type: 'checkout' });
+    window.scrollTo({ top: 0 });
+  };
+
+  const selectedProduct = page.type === 'product'
+    ? PRODUCTS.find(p => p.id === page.id) || null
+    : null;
 
   return (
     <CartProvider>
       <main className="w-full min-h-screen">
-        <Header onLogoClick={handleBack} />
-        {selectedProduct ? (
-          <ProductDetail product={selectedProduct} onBack={handleBack} />
+        <Header onLogoClick={goHome} />
+        {page.type === 'checkout' ? (
+          <Checkout onBack={goHome} />
+        ) : selectedProduct ? (
+          <ProductDetail product={selectedProduct} onBack={goHome} />
         ) : (
           <>
             <Hero />
-            <ProductGallery onSelectProduct={setSelectedProductId} />
+            <ProductGallery onSelectProduct={goProduct} />
             <TeamSection />
             <Quiz />
           </>
         )}
         <Footer />
         <Analytics />
-        <CartDrawer />
+        <CartDrawer onCheckout={goCheckout} />
       </main>
     </CartProvider>
   );
