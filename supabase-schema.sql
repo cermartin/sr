@@ -40,3 +40,23 @@ create policy "Allow anonymous inserts" on orders
 
 create policy "Allow anonymous inserts" on quiz_submissions
   for insert with check (true);
+
+-- Site visit counter
+create table site_visits (
+  id int primary key default 1,
+  count int not null default 0,
+  constraint single_row check (id = 1)
+);
+
+insert into site_visits (id, count) values (1, 0);
+
+alter table site_visits enable row level security;
+
+create policy "Allow anonymous read" on site_visits
+  for select using (true);
+
+-- Function to atomically increment the counter
+create or replace function increment_visits()
+returns void as $$
+  update site_visits set count = count + 1 where id = 1;
+$$ language sql security definer;
