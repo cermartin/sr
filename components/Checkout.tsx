@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Lock, Truck, ShieldCheck, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
+import { sendOrderEmails } from '../lib/email';
 
 interface CheckoutProps {
   onBack: () => void;
@@ -75,6 +76,22 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
       });
 
       if (dbError) throw dbError;
+
+      // Send confirmation emails (don't block order on email failure)
+      sendOrderEmails({
+        customerEmail: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        address: form.address,
+        city: form.city,
+        postcode: form.postcode,
+        country: form.country,
+        phone: form.phone,
+        items,
+        subtotal: totalPrice,
+        shipping,
+        total,
+      }).catch(err => console.error('Email send failed:', err));
 
       setOrderPlaced(true);
       clearCart();
