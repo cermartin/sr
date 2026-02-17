@@ -14,6 +14,11 @@ export interface TeamMember {
   description?: string;
 }
 
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 export interface QuizState {
   step: number;
   location: string;

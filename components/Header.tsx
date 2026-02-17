@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
+import { useCart } from '../context/CartContext';
 import logoImg from '../images/logo.png';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { toggleCart, totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,8 +43,16 @@ const Header: React.FC = () => {
               {link.label}
             </a>
           ))}
-          <button className="flex items-center gap-2 px-5 py-2 bg-stone-900 text-stone-50 text-xs uppercase tracking-widest hover:bg-stone-700 transition-colors">
+          <button
+            onClick={toggleCart}
+            className="relative flex items-center gap-2 px-5 py-2 bg-stone-900 text-stone-50 text-xs uppercase tracking-widest hover:bg-stone-700 transition-colors"
+          >
             Shop <ShoppingBag className="w-3 h-3" />
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </button>
         </nav>
 
@@ -68,8 +78,16 @@ const Header: React.FC = () => {
               {link.label}
             </a>
           ))}
-          <button className="w-full py-3 bg-stone-900 text-stone-50 uppercase tracking-widest text-sm">
+          <button
+            onClick={() => { setMobileMenuOpen(false); toggleCart(); }}
+            className="relative w-full py-3 bg-stone-900 text-stone-50 uppercase tracking-widest text-sm"
+          >
             Shop Now
+            {totalItems > 0 && (
+              <span className="absolute top-1 right-3 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </button>
         </div>
       )}

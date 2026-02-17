@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PRODUCTS } from '../constants';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { Product } from '../types';
+
+const AddToCartButton: React.FC<{ product: Product }> = ({ product }) => {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleClick = () => {
+    addItem(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className={`absolute bottom-0 left-0 w-full py-4 uppercase text-xs tracking-widest font-medium translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
+        added ? 'bg-green-600 text-white' : 'bg-white text-stone-900'
+      }`}
+    >
+      {added ? 'Added!' : 'Add to Cart'}
+    </button>
+  );
+};
 
 const ProductGallery: React.FC = () => {
   return (
     <section id="collection" className="py-24 bg-stone-50">
       <div className="container mx-auto px-6">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-xl">
@@ -26,8 +50,8 @@ const ProductGallery: React.FC = () => {
           {PRODUCTS.map((product) => (
             <div key={product.id} className="group cursor-pointer">
               <div className="relative aspect-[4/5] overflow-hidden bg-stone-200 mb-6">
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -37,11 +61,9 @@ const ProductGallery: React.FC = () => {
                   </span>
                 </div>
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                
-                {/* Quick Add Button - appears on hover */}
-                <button className="absolute bottom-0 left-0 w-full bg-white text-stone-900 py-4 uppercase text-xs tracking-widest font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  View Details
-                </button>
+
+                {/* Add to Cart Button - appears on hover */}
+                <AddToCartButton product={product} />
               </div>
 
               <div className="flex justify-between items-start">
