@@ -49,15 +49,28 @@ export async function sendOrderEmails(data: OrderEmailData): Promise<void> {
     total: `£${data.total.toLocaleString()}`,
   };
 
-  await Promise.all([
-    emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE_ID, {
+  // Send owner email
+  try {
+    await emailjs.send(SERVICE_ID, OWNER_TEMPLATE_ID, commonParams, PUBLIC_KEY);
+    console.log('[Email] Owner notification sent');
+  } catch (err) {
+    console.error('[Email] Owner notification FAILED:', err);
+  }
+
+  // Send customer email
+  try {
+    const customerParams = {
       ...commonParams,
       to_name: `${data.firstName} ${data.lastName}`,
       to_email: data.customerEmail,
       from_name: 'Serrano Rivers',
-    }, PUBLIC_KEY),
-    emailjs.send(SERVICE_ID, OWNER_TEMPLATE_ID, {
-      ...commonParams,
-    }, PUBLIC_KEY),
-  ]);
+    };
+    console.log('[Email] Sending customer email to:', data.customerEmail);
+    console.log('[Email] Template ID:', CUSTOMER_TEMPLATE_ID);
+    console.log('[Email] Params:', JSON.stringify(customerParams));
+    const result = await emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE_ID, customerParams, PUBLIC_KEY);
+    console.log('[Email] Customer confirmation sent, status:', result.status, result.text);
+  } catch (err: any) {
+    console.error('[Email] Customer confirmation FAILED:', err?.text || err?.message || err);
+  }
 }
