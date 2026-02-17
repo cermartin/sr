@@ -38,5 +38,8 @@ alter table quiz_submissions enable row level security;
 create policy "Allow anonymous inserts" on orders
   for insert with check (true);
 
+create policy "Allow read own insert" on orders
+  for select using (true);
+
 create policy "Allow anonymous inserts" on quiz_submissions
   for insert with check (true);

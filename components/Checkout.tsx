@@ -15,6 +15,7 @@ function parsePrice(price: string): number {
 const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
   const { items, totalPrice, cartKey, clearCart } = useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderId, setOrderId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -59,7 +60,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         };
       });
 
-      const { error: dbError } = await supabase.from('orders').insert({
+      const { data: orderData, error: dbError } = await supabase.from('orders').insert({
         email: form.email,
         phone: form.phone || null,
         first_name: form.firstName,
@@ -73,12 +74,16 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         shipping,
         total,
         items: orderItems,
-      });
+      }).select('id').single();
 
       if (dbError) throw dbError;
 
+      const newOrderId = orderData?.id?.slice(0, 8).toUpperCase() || 'N/A';
+      setOrderId(newOrderId);
+
       // Send confirmation emails (don't block order on email failure)
       sendOrderEmails({
+        orderId: newOrderId,
         customerEmail: form.email,
         firstName: form.firstName,
         lastName: form.lastName,
@@ -112,6 +117,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
             <ShieldCheck size={32} />
           </div>
           <h1 className="font-serif text-3xl text-stone-900 mb-3">Order Confirmed</h1>
+          <p className="text-xs uppercase tracking-widest text-stone-400 mb-4">Order #{orderId}</p>
           <p className="text-stone-500 mb-2">Thank you for your purchase! A confirmation email has been sent to <span className="text-stone-900 font-medium">{form.email}</span>.</p>
           <p className="text-stone-400 text-sm mb-8">Your order will be carefully packaged and dispatched within 3-5 working days.</p>
           <button

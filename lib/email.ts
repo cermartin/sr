@@ -20,6 +20,7 @@ function formatItems(items: CartItem[]): string {
 }
 
 interface OrderEmailData {
+  orderId: string;
   customerEmail: string;
   firstName: string;
   lastName: string;
@@ -39,6 +40,7 @@ export async function sendOrderEmails(data: OrderEmailData): Promise<void> {
   const shippingStr = data.shipping === 0 ? 'Free' : `£${data.shipping}`;
 
   const commonParams = {
+    order_id: data.orderId,
     customer_name: `${data.firstName} ${data.lastName}`,
     customer_email: data.customerEmail,
     phone: data.phone || 'Not provided',
