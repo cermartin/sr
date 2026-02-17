@@ -3,7 +3,7 @@ import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const CartDrawer: React.FC = () => {
-  const { isOpen, closeCart, items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const { isOpen, closeCart, items, totalItems, totalPrice, updateQuantity, removeItem, cartKey } = useCart();
 
   return (
     <>
@@ -37,39 +37,48 @@ const CartDrawer: React.FC = () => {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-            {items.map(({ product, quantity }) => (
-              <div key={product.id} className="flex gap-4">
-                <div className="w-20 h-24 bg-stone-100 flex-shrink-0 overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-serif text-sm text-stone-900 truncate">{product.name}</h3>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide mt-0.5">{product.category}</p>
-                  <p className="text-sm text-stone-900 font-medium mt-1">{product.price}</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <button
-                      onClick={() => updateQuantity(product.id, quantity - 1)}
-                      className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
-                    >
-                      <Minus size={12} />
-                    </button>
-                    <span className="text-sm text-stone-900 w-4 text-center">{quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(product.id, quantity + 1)}
-                      className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
-                    >
-                      <Plus size={12} />
-                    </button>
-                    <button
-                      onClick={() => removeItem(product.id)}
-                      className="ml-auto text-stone-400 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+            {items.map((item) => {
+              const { product, quantity, variantId } = item;
+              const key = cartKey(product.id, variantId);
+              const variant = product.variants?.find(v => v.id === variantId);
+              const displayImage = variant?.image || product.image;
+              return (
+                <div key={key} className="flex gap-4">
+                  <div className="w-20 h-24 bg-stone-100 flex-shrink-0 overflow-hidden">
+                    <img src={displayImage} alt={product.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif text-sm text-stone-900 truncate">{product.name}</h3>
+                    {variant && (
+                      <p className="text-xs text-stone-500 mt-0.5">{variant.name}</p>
+                    )}
+                    <p className="text-xs text-stone-500 uppercase tracking-wide mt-0.5">{product.category}</p>
+                    <p className="text-sm text-stone-900 font-medium mt-1">{product.price}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        onClick={() => updateQuantity(key, quantity - 1)}
+                        className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="text-sm text-stone-900 w-4 text-center">{quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(key, quantity + 1)}
+                        className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
+                      >
+                        <Plus size={12} />
+                      </button>
+                      <button
+                        onClick={() => removeItem(key)}
+                        className="ml-auto text-stone-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -79,7 +88,7 @@ const CartDrawer: React.FC = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm uppercase tracking-widest text-stone-500">Subtotal</span>
               <span className="font-serif text-lg text-stone-900">
-                ${totalPrice.toLocaleString()}
+                £{totalPrice.toLocaleString()}
               </span>
             </div>
             <button className="w-full py-3 bg-stone-900 text-stone-50 uppercase tracking-widest text-sm hover:bg-stone-700 transition-colors">

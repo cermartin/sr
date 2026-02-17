@@ -4,7 +4,11 @@ import { NAV_LINKS } from '../constants';
 import { useCart } from '../context/CartContext';
 import logoImg from '../images/logo.png';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onLogoClick?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onLogoClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toggleCart, totalItems } = useCart();
@@ -25,7 +29,7 @@ const Header: React.FC = () => {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-3">
+        <a href="#" onClick={(e) => { e.preventDefault(); onLogoClick?.(); }} className="flex items-center gap-3">
           <img src={logoImg} alt="SR" className="h-10 w-10 rounded-full" />
           <span className="font-serif text-2xl tracking-widest font-semibold text-stone-900">
             SERRANO RIVERS

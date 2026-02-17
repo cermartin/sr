@@ -1,10 +1,10 @@
 import { Product, TeamMember } from './types';
 
 // Product images
+import coffeeTable1Img from './images/coffe-table-1.jpeg';
 import coffeeTable2Img from './images/coffe-table-2.jpeg';
-import knifeImg from './images/knife.png';
+import coffeeTable3Img from './images/cpffe-table-3.jpeg';
 import coastersImg from './images/coasters.png';
-import cuttingBoardImg from './images/cutting-board.png';
 
 // Team member images
 import orrinImg from './images/orrin-edmonds.jpeg';
@@ -25,33 +25,26 @@ export const PRODUCTS: Product[] = [
     id: '1',
     name: 'The Nordic River',
     category: 'Coffee Tables',
-    price: '$2,400',
-    image: coffeeTable2Img,
-    description: 'Black walnut meets translucent sapphire resin in a modern living centrepiece.'
+    price: '£200',
+    image: coffeeTable1Img,
+    description: 'Black walnut meets translucent sapphire resin in a modern living centrepiece.',
+    details: 'Hand-crafted from sustainably sourced black walnut, each Nordic River table features a unique resin river pour that captures the beauty of flowing water frozen in time. The high-clarity, non-yellowing epoxy is mixed with premium pigments and poured by hand, ensuring no two tables are ever alike. Finished with a satin-smooth topcoat for everyday durability.',
+    dimensions: '120cm × 60cm × 45cm',
+    variants: [
+      { id: 'natural-walnut', name: 'Natural Walnut', color: '#8B6914', image: coffeeTable1Img },
+      { id: 'deep-ocean', name: 'Deep Ocean', color: '#1B4D6E', image: coffeeTable2Img },
+      { id: 'midnight', name: 'Midnight', color: '#2C2C3A', image: coffeeTable3Img },
+    ],
   },
   {
     id: '2',
-    name: 'Highland Edge',
-    category: 'Knives',
-    price: '$450',
-    image: knifeImg,
-    description: 'Stabilized burl wood handle with damascus steel blade.'
-  },
-  {
-    id: '3',
     name: 'Coastal Hex',
-    category: 'Coasters',
-    price: '$120',
+    category: 'Coasters — Set of 4',
+    price: '£40',
     image: coastersImg,
-    description: 'A set of 3 ocean-inspired bamboo and resin protectors.'
-  },
-  {
-    id: '4',
-    name: "River's Edge",
-    category: 'Cutting Boards',
-    price: '$350',
-    image: cuttingBoardImg,
-    description: 'Live edge walnut with a deep sapphire resin river pour.'
+    description: 'Ocean-inspired bamboo and resin coasters that protect your surfaces in style.',
+    details: 'Each set of four hexagonal coasters is individually cast from bamboo offcuts and swirled ocean-blue resin. Cork-backed to protect your furniture, heat-resistant up to 100°C, and sealed with a food-safe matte finish. The perfect complement to any Serrano Rivers table — or a standalone statement piece.',
+    dimensions: '10cm × 10cm × 1cm',
   },
 ];
 

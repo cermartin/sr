@@ -1,3 +1,10 @@
+export interface ProductVariant {
+  id: string;
+  name: string;
+  color: string;
+  image: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -5,6 +12,15 @@ export interface Product {
   price: string;
   image: string;
   description: string;
+  details?: string;
+  dimensions?: string;
+  variants?: ProductVariant[];
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  variantId?: string;
 }
 
 export interface TeamMember {
@@ -12,11 +28,6 @@ export interface TeamMember {
   role: string;
   image: string;
   description?: string;
-}
-
-export interface CartItem {
-  product: Product;
-  quantity: number;
 }
 
 export interface QuizState {
