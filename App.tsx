@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGallery from './components/ProductGallery';
@@ -15,6 +16,7 @@ function App() {
       <TeamSection />
       <Quiz />
       <Footer />
+      <Analytics />
     </main>
   );
 }
