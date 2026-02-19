@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, Truck, ShieldCheck, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { supabase } from '../lib/supabase';
-import { sendOrderEmails } from '../lib/email';
 import { parsePrice } from '../lib/utils';
 
 interface CheckoutProps {
   onBack: () => void;
+  orderConfirmation?: { orderId: string; email: string } | null;
+  cancelledMessage?: string;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
-  const { items, totalPrice, cartKey, clearCart } = useCart();
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState('');
+const Checkout: React.FC<CheckoutProps> = ({ onBack, orderConfirmation, cancelledMessage }) => {
+  const { items, totalPrice, cartKey } = useCart();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(cancelledMessage || '');
 
   const shipping = totalPrice >= 100 ? 0 : 5;
   const total = totalPrice + shipping;
@@ -28,10 +26,6 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
     postcode: '',
     country: 'United Kingdom',
     phone: '',
-    cardNumber: '',
-    expiry: '',
-    cvc: '',
-    cardName: '',
   });
 
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -46,68 +40,49 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
     setError('');
 
     try {
-      const orderItems = items.map(item => {
+      const cartItems = items.map(item => {
         const variant = item.product.variants?.find(v => v.id === item.variantId);
         return {
-          product_id: item.product.id,
-          product_name: item.product.name,
-          variant_name: variant?.name || null,
+          name: item.product.name,
+          price: parsePrice(item.product.price),
           quantity: item.quantity,
-          unit_price: parsePrice(item.product.price),
+          variant: variant?.name || undefined,
         };
       });
 
-      const newOrderId = Math.random().toString(36).slice(2, 10).toUpperCase();
-
-      const { error: dbError } = await supabase.from('orders').insert({
-        email: form.email,
-        phone: form.phone || null,
-        first_name: form.firstName,
-        last_name: form.lastName,
-        address: form.address,
-        city: form.city,
-        postcode: form.postcode,
-        country: form.country,
-        card_last_four: form.cardNumber.slice(-4),
-        subtotal: totalPrice,
-        shipping,
-        total,
-        items: orderItems,
-        order_ref: newOrderId,
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cartItems,
+          email: form.email,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          address: form.address,
+          city: form.city,
+          postcode: form.postcode,
+          country: form.country,
+          phone: form.phone,
+          shipping,
+        }),
       });
 
-      if (dbError) throw new Error(`DB: ${dbError.message} (${dbError.code})`);
-      setOrderId(newOrderId);
+      const data = await res.json();
 
-      // Send confirmation emails (don't block order on email failure)
-      sendOrderEmails({
-        orderId: newOrderId,
-        customerEmail: form.email,
-        firstName: form.firstName,
-        lastName: form.lastName,
-        address: form.address,
-        city: form.city,
-        postcode: form.postcode,
-        country: form.country,
-        phone: form.phone,
-        items,
-        subtotal: totalPrice,
-        shipping,
-        total,
-      }).catch(err => console.error('Email send failed:', err));
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
 
-      setOrderPlaced(true);
-      clearCart();
-      window.scrollTo({ top: 0 });
+      // Redirect to Stripe hosted checkout
+      window.location.href = data.url;
     } catch (err: any) {
-      console.error('Order save failed:', err);
+      console.error('Checkout error:', err);
       setError(`Error: ${err?.message || 'Unknown error'}. Please try again.`);
-    } finally {
       setSubmitting(false);
     }
   };
 
-  if (orderPlaced) {
+  if (orderConfirmation) {
     return (
       <section className="pt-28 pb-24 bg-white min-h-screen">
         <div className="container mx-auto px-6 max-w-lg text-center">
@@ -115,8 +90,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
             <ShieldCheck size={32} />
           </div>
           <h1 className="font-serif text-3xl text-stone-900 mb-3">Order Confirmed</h1>
-          <p className="text-xs uppercase tracking-widest text-stone-400 mb-4">Order #{orderId}</p>
-          <p className="text-stone-500 mb-2">Thank you for your purchase! A confirmation email has been sent to <span className="text-stone-900 font-medium">{form.email}</span>.</p>
+          <p className="text-xs uppercase tracking-widest text-stone-400 mb-4">Order #{orderConfirmation.orderId}</p>
+          <p className="text-stone-500 mb-2">Thank you for your purchase! A confirmation email has been sent to <span className="text-stone-900 font-medium">{orderConfirmation.email}</span>.</p>
           <p className="text-stone-400 text-sm mb-8">Your order will be carefully packaged and dispatched within 3-5 working days.</p>
           <button
             onClick={onBack}
@@ -217,31 +192,13 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Payment */}
-            <div>
-              <h2 className="font-serif text-lg text-stone-900 mb-4">Payment</h2>
-              <div className="bg-white border border-stone-200 p-6 space-y-4">
+            {/* Payment info notice */}
+            <div className="bg-white border border-stone-200 p-6">
+              <div className="flex items-center gap-3 text-stone-600">
+                <Lock size={18} />
                 <div>
-                  <label className={labelCls}>Name on Card</label>
-                  <input type="text" required placeholder="John Smith" value={form.cardName} onChange={update('cardName')} className={inputCls} />
-                </div>
-                <div>
-                  <label className={labelCls}>Card Number</label>
-                  <input type="text" required placeholder="4242 4242 4242 4242" maxLength={19} value={form.cardNumber} onChange={update('cardNumber')} className={inputCls} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Expiry</label>
-                    <input type="text" required placeholder="MM / YY" maxLength={7} value={form.expiry} onChange={update('expiry')} className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>CVC</label>
-                    <input type="text" required placeholder="123" maxLength={4} value={form.cvc} onChange={update('cvc')} className={inputCls} />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-stone-400 text-xs pt-2">
-                  <Lock size={12} />
-                  <span>Your payment information is encrypted and secure</span>
+                  <p className="text-sm font-medium text-stone-900">Secure Payment</p>
+                  <p className="text-xs text-stone-400 mt-1">You'll be redirected to Stripe's secure checkout to complete your payment.</p>
                 </div>
               </div>
             </div>
@@ -257,7 +214,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
               className="lg:hidden w-full py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-              {submitting ? 'Processing...' : `Pay £${total.toLocaleString()}`}
+              {submitting ? 'Redirecting...' : `Proceed to Payment — £${total.toLocaleString()}`}
             </button>
           </div>
 
@@ -319,7 +276,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
                 className="hidden lg:flex w-full mt-6 py-4 bg-stone-900 text-stone-50 uppercase text-sm tracking-widest hover:bg-stone-700 transition-colors items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-                {submitting ? 'Processing...' : `Pay £${total.toLocaleString()}`}
+                {submitting ? 'Redirecting...' : `Proceed to Payment — £${total.toLocaleString()}`}
               </button>
             </div>
           </div>
