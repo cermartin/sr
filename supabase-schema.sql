@@ -4,6 +4,7 @@
 create table orders (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
+  order_ref text,
   email text not null,
   phone text,
   first_name text not null,
@@ -37,9 +38,6 @@ alter table quiz_submissions enable row level security;
 -- Allow anonymous inserts (the anon key can only insert, not read/update/delete)
 create policy "Allow anonymous inserts" on orders
   for insert with check (true);
-
-create policy "Allow read own insert" on orders
-  for select using (true);
 
 create policy "Allow anonymous inserts" on quiz_submissions
   for insert with check (true);

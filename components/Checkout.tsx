@@ -60,7 +60,9 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         };
       });
 
-      const { data: orderData, error: dbError } = await supabase.from('orders').insert({
+      const newOrderId = crypto.randomUUID().slice(0, 8).toUpperCase();
+
+      const { error: dbError } = await supabase.from('orders').insert({
         email: form.email,
         phone: form.phone || null,
         first_name: form.firstName,
@@ -74,11 +76,10 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         shipping,
         total,
         items: orderItems,
-      }).select('id').single();
+        order_ref: newOrderId,
+      });
 
       if (dbError) throw dbError;
-
-      const newOrderId = orderData?.id?.slice(0, 8).toUpperCase() || 'N/A';
       setOrderId(newOrderId);
 
       // Send confirmation emails (don't block order on email failure)
