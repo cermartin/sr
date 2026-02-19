@@ -19,9 +19,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack }) => {
   const selectedVariantId = variants ? variants[selectedVariantIdx].id : undefined;
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem(product, selectedVariantId);
-    }
+    addItem(product, selectedVariantId, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };

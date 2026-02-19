@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 import { CartItem, Product } from '../types';
+import { parsePrice } from '../lib/utils';
 
 interface CartState {
   items: CartItem[];
@@ -7,7 +8,7 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; product: Product; variantId?: string }
+  | { type: 'ADD_ITEM'; product: Product; variantId?: string; quantity?: number }
   | { type: 'REMOVE_ITEM'; key: string }
   | { type: 'UPDATE_QUANTITY'; key: string; quantity: number }
   | { type: 'CLEAR_CART' }
@@ -19,7 +20,7 @@ function cartKey(productId: string, variantId?: string): string {
 }
 
 interface CartContextValue extends CartState {
-  addItem: (product: Product, variantId?: string) => void;
+  addItem: (product: Product, variantId?: string, quantity?: number) => void;
   removeItem: (key: string) => void;
   updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
@@ -32,10 +33,6 @@ interface CartContextValue extends CartState {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function parsePrice(price: string): number {
-  return Number(price.replace(/[^0-9.]/g, ''));
-}
-
 function itemKey(item: CartItem): string {
   return cartKey(item.product.id, item.variantId);
 }
@@ -43,19 +40,20 @@ function itemKey(item: CartItem): string {
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
+      const qty = action.quantity || 1;
       const key = cartKey(action.product.id, action.variantId);
       const existing = state.items.find(i => itemKey(i) === key);
       if (existing) {
         return {
           ...state,
           items: state.items.map(i =>
-            itemKey(i) === key ? { ...i, quantity: i.quantity + 1 } : i
+            itemKey(i) === key ? { ...i, quantity: i.quantity + qty } : i
           ),
         };
       }
       return {
         ...state,
-        items: [...state.items, { product: action.product, quantity: 1, variantId: action.variantId }],
+        items: [...state.items, { product: action.product, quantity: qty, variantId: action.variantId }],
       };
     }
     case 'REMOVE_ITEM':
@@ -85,7 +83,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
 
-  const addItem = useCallback((product: Product, variantId?: string) => dispatch({ type: 'ADD_ITEM', product, variantId }), []);
+  const addItem = useCallback((product: Product, variantId?: string, quantity?: number) => dispatch({ type: 'ADD_ITEM', product, variantId, quantity }), []);
   const removeItem = useCallback((key: string) => dispatch({ type: 'REMOVE_ITEM', key }), []);
   const updateQuantity = useCallback((key: string, quantity: number) => dispatch({ type: 'UPDATE_QUANTITY', key, quantity }), []);
   const clearCart = useCallback(() => dispatch({ type: 'CLEAR_CART' }), []);

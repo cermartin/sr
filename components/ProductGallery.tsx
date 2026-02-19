@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PRODUCTS } from '../constants';
-import { ArrowRight, Sparkles, Plus, Check } from 'lucide-react';
+import { Sparkles, Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { Product } from '../types';
 
@@ -92,10 +92,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ onSelectProduct }) => {
               Each piece is a dialogue between nature and craftsmanship. Our epoxy finishes use high-clarity, non-yellowing formulas to preserve the art for generations.
             </p>
           </div>
-          <a href="#" className="hidden md:flex items-center gap-2 text-stone-800 hover:text-stone-500 transition-colors pb-1 border-b border-stone-300 hover:border-stone-500">
-            <span className="uppercase text-xs tracking-widest">View All Works</span>
-            <ArrowRight size={16} />
-          </a>
         </div>
 
         {/* Grid */}
@@ -109,12 +105,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ onSelectProduct }) => {
           ))}
         </div>
 
-        <div className="mt-12 text-center md:hidden">
-           <a href="#" className="inline-flex items-center gap-2 text-stone-800 border-b border-stone-300 pb-1">
-            <span className="uppercase text-xs tracking-widest">View All Works</span>
-            <ArrowRight size={16} />
-          </a>
-        </div>
 
         {/* Feature Banner */}
         <div className="mt-24 p-8 bg-stone-100 border border-stone-200 flex flex-col md:flex-row items-center justify-center gap-6 text-center md:text-left">

@@ -1,14 +1,11 @@
 import emailjs from '@emailjs/browser';
 import { CartItem } from '../types';
+import { parsePrice } from './utils';
 
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
 const CUSTOMER_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_CUSTOMER_TEMPLATE_ID as string;
 const OWNER_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_OWNER_TEMPLATE_ID as string;
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
-
-function parsePrice(price: string): number {
-  return Number(price.replace(/[^0-9.]/g, ''));
-}
 
 function formatItems(items: CartItem[]): string {
   return items.map(item => {
@@ -54,7 +51,6 @@ export async function sendOrderEmails(data: OrderEmailData): Promise<void> {
   // Send owner email
   try {
     await emailjs.send(SERVICE_ID, OWNER_TEMPLATE_ID, commonParams, PUBLIC_KEY);
-    console.log('[Email] Owner notification sent');
   } catch (err) {
     console.error('[Email] Owner notification FAILED:', err);
   }
@@ -67,11 +63,7 @@ export async function sendOrderEmails(data: OrderEmailData): Promise<void> {
       to_email: data.customerEmail,
       from_name: 'Serrano Rivers',
     };
-    console.log('[Email] Sending customer email to:', data.customerEmail);
-    console.log('[Email] Template ID:', CUSTOMER_TEMPLATE_ID);
-    console.log('[Email] Params:', JSON.stringify(customerParams));
-    const result = await emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE_ID, customerParams, PUBLIC_KEY);
-    console.log('[Email] Customer confirmation sent, status:', result.status, result.text);
+    await emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE_ID, customerParams, PUBLIC_KEY);
   } catch (err: any) {
     console.error('[Email] Customer confirmation FAILED:', err?.text || err?.message || err);
   }

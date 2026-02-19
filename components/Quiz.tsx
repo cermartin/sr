@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight, Check, RotateCcw, Droplets, Sun, ShieldCheck } from 'lucide-react';
 import { QuizState } from '../types';
 import { supabase } from '../lib/supabase';
+import quizImg from '../images/angle-coffe-table.png';
 
 const INITIAL_STATE: QuizState = {
   step: 0,
@@ -229,9 +230,9 @@ const Quiz: React.FC = () => {
           
           {/* Visual Side */}
           <div className="md:w-1/2 relative bg-stone-800 hidden md:block">
-            <img 
-              src="https://images.unsplash.com/photo-1549488344-c7052fb518f2?q=80&w=1000&auto=format&fit=crop" 
-              alt="Polishing wood" 
+            <img
+              src={quizImg}
+              alt="Artisan epoxy table close-up"
               className="w-full h-full object-cover opacity-60"
             />
             <div className="absolute inset-0 flex flex-col justify-between p-8 text-white/90">

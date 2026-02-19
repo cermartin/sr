@@ -3,13 +3,10 @@ import { ArrowLeft, Lock, Truck, ShieldCheck, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 import { sendOrderEmails } from '../lib/email';
+import { parsePrice } from '../lib/utils';
 
 interface CheckoutProps {
   onBack: () => void;
-}
-
-function parsePrice(price: string): number {
-  return Number(price.replace(/[^0-9.]/g, ''));
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
