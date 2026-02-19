@@ -60,7 +60,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         };
       });
 
-      const newOrderId = crypto.randomUUID().slice(0, 8).toUpperCase();
+      const newOrderId = Math.random().toString(36).slice(2, 10).toUpperCase();
 
       const { error: dbError } = await supabase.from('orders').insert({
         email: form.email,
@@ -79,7 +79,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
         order_ref: newOrderId,
       });
 
-      if (dbError) throw dbError;
+      if (dbError) throw new Error(`DB: ${dbError.message} (${dbError.code})`);
       setOrderId(newOrderId);
 
       // Send confirmation emails (don't block order on email failure)
@@ -104,7 +104,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onBack }) => {
       window.scrollTo({ top: 0 });
     } catch (err: any) {
       console.error('Order save failed:', err);
-      setError('Something went wrong placing your order. Please try again.');
+      setError(`Error: ${err?.message || 'Unknown error'}. Please try again.`);
     } finally {
       setSubmitting(false);
     }
