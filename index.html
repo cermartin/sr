@@ -38,8 +38,28 @@
                 light: '#D4C4B7',
                 DEFAULT: '#A68A76',
                 dark: '#7C6A5A'
-              }
-            }
+              },
+              orange: {
+                400: '#FF7433',
+                500: '#FF5200',
+                600: '#E64A00',
+                700: '#CC4000',
+              },
+            },
+            animation: {
+              'fade-up':  'fadeUp 0.65s cubic-bezier(0.25,0.8,0.25,1) both',
+              'fade-in':  'fadeIn 0.8s ease both',
+            },
+            keyframes: {
+              fadeUp: {
+                '0%':   { opacity: '0', transform: 'translateY(26px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)'    },
+              },
+              fadeIn: {
+                '0%':   { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+            },
           }
         }
       }
