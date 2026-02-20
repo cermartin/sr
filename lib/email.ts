@@ -1,18 +1,20 @@
 import emailjs from '@emailjs/browser';
-import { CartItem } from '../types';
-import { parsePrice } from './utils';
 
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
 const CUSTOMER_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_CUSTOMER_TEMPLATE_ID as string;
 const OWNER_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_OWNER_TEMPLATE_ID as string;
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
 
-function formatItems(items: CartItem[]): string {
+export interface OrderItem {
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+}
+
+function formatItems(items: OrderItem[]): string {
   return items.map(item => {
-    const variant = item.product.variants?.find(v => v.id === item.variantId);
-    const variantStr = variant ? ` (${variant.name})` : '';
-    const lineTotal = parsePrice(item.product.price) * item.quantity;
-    return `${item.product.name}${variantStr} × ${item.quantity} — £${lineTotal.toLocaleString()}`;
+    const lineTotal = item.unit_price * item.quantity;
+    return `${item.product_name} × ${item.quantity} — £${lineTotal.toLocaleString()}`;
   }).join('\n');
 }
 
@@ -26,7 +28,7 @@ interface OrderEmailData {
   postcode: string;
   country: string;
   phone: string;
-  items: CartItem[];
+  items: OrderItem[];
   subtotal: number;
   shipping: number;
   total: number;

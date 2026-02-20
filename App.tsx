@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { CartProvider, useCart } from './context/CartContext';
+import type { OrderItem } from './lib/email';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGallery from './components/ProductGallery';
@@ -21,7 +22,7 @@ function AppInner() {
   const [page, setPage] = useState<Page>({ type: 'home' });
   const [orderConfirmation, setOrderConfirmation] = useState<{ orderId: string; email: string } | null>(null);
   const [cancelledMessage, setCancelledMessage] = useState('');
-  const { items, totalPrice, clearCart } = useCart();
+  const { totalPrice, clearCart } = useCart();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -53,8 +54,8 @@ function AppInner() {
       const meta = session.metadata || {};
       const email = session.customer_email || '';
 
-      // Save order to Supabase
-      const orderItems = (session.line_items || [])
+      // Build order items from Stripe session (cart is empty after redirect)
+      const orderItems: OrderItem[] = (session.line_items || [])
         .filter((li: any) => li.description !== 'Shipping')
         .map((li: any) => ({
           product_name: li.description,
@@ -95,7 +96,7 @@ function AppInner() {
         postcode: meta.postcode || '',
         country: meta.country || '',
         phone: meta.phone || '',
-        items,
+        items: orderItems,
         subtotal,
         shipping: shippingCost,
         total: totalAmount,
