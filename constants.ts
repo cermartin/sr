@@ -15,9 +15,10 @@ import frankieImg from './images/frankie-carroll.jpeg';
 import willImg from './images/will-plessis.jpg';
 
 export const NAV_LINKS = [
-  { label: 'Collection', href: '#collection' },
-  { label: 'The Workshop', href: '#team' },
-  { label: 'Care Engine', href: '#care-engine' },
+  { label: 'Collection',    href: '#collection'  },
+  { label: 'Book Breakfast', href: '#booking'    },
+  { label: 'The Workshop',  href: '#team'        },
+  { label: 'Care Engine',   href: '#care-engine' },
 ];
 
 export const PRODUCTS: Product[] = [

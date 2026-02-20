@@ -5,6 +5,7 @@ import type { OrderItem } from './lib/email';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGallery from './components/ProductGallery';
+import BookingSection from './components/BookingSection';
 import TeamSection from './components/TeamSection';
 import Quiz from './components/Quiz';
 import Footer from './components/Footer';
@@ -150,6 +151,7 @@ function AppInner() {
         <>
           <Hero />
           <ProductGallery onSelectProduct={goProduct} />
+          <BookingSection />
           <TeamSection />
           <Quiz />
         </>
